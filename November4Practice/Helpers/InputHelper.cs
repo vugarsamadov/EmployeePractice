@@ -110,8 +110,11 @@ namespace November4Practice.Helpers
                 Console.WriteLine($"{(int)gender} > {gender}");
             }
             
-            int genderInt = PromptAndGetPositiveRangedInt("Gender: ",Genders.Length - 1);
-            
+            int genderInt = PromptAndGetPositiveInt("Gender: ");
+
+            if (genderInt > Genders.Length - 1)
+                throw ExceptionHelper.CommandInvalidException(genderInt);
+
             return (Gender)genderInt;
         }
 

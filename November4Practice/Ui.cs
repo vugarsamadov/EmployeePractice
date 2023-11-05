@@ -13,11 +13,11 @@ namespace November4Practice
    
     public enum InitialCommand
     {
-        CreateEmployee,
-        GetEmployeeById,
-        GetAllEmployees,
-        UpdateEmployee,
-        RemoveEmployee,
+        Create_Employee,
+        Get_Employee_By_Id,
+        Get_All_Employees,
+        Update_Employee,
+        Remove_Employee,
         Quit
     }
     public enum EmployeeUpdateCommand
@@ -32,15 +32,15 @@ namespace November4Practice
     internal class Ui
     {
         public Company Company { get; private set; }
-        public string Status { get; private set; } = string.Empty;
+        public string Buffer { get; private set; } = string.Empty;
 
         public InitialCommand[] InitialCommands { get; init; } = 
             new InitialCommand[] {
-                InitialCommand.CreateEmployee,
-                InitialCommand.GetEmployeeById,
-                InitialCommand.GetAllEmployees,
-                InitialCommand.UpdateEmployee,
-                InitialCommand.RemoveEmployee,
+                InitialCommand.Create_Employee,
+                InitialCommand.Get_Employee_By_Id,
+                InitialCommand.Get_All_Employees,
+                InitialCommand.Update_Employee,
+                InitialCommand.Remove_Employee,
                 InitialCommand.Quit
             };
 
@@ -71,36 +71,40 @@ public EmployeeUpdateCommand[] UpdateCommands { get; init; } =
 
                     switch(Command)
                     {
-                        case InitialCommand.CreateEmployee:
-                            CreateAndAddEmployee(InputHelper.GetEmployeeFromUser());
+                        case InitialCommand.Create_Employee:
+                            AddEmployee(InputHelper.GetEmployeeFromUser());
                             break;
-                        case InitialCommand.GetEmployeeById:
+                        case InitialCommand.Get_Employee_By_Id:
                             PrintEmployeeById(InputHelper.PromptAndGetPositiveInt("Employee Indx: "));
                             break;
-                        case InitialCommand.GetAllEmployees:
-                            PrintAllEmployees();
+                        case InitialCommand.Get_All_Employees:
+                            BufferAllEmployees();
                             break;
-                        case InitialCommand.UpdateEmployee:
-                            UpdateEmployee(InputHelper.PromptAndGetPositiveRangedInt("Employee Id: ",4));
+                        case InitialCommand.Update_Employee:
+                            BufferAllEmployees();
+                            Display();
+                            TryUpdateEmployee(InputHelper.PromptAndGetPositiveInt("Employee Id: "));
                             break;
-                        case InitialCommand.RemoveEmployee:
+                        case InitialCommand.Remove_Employee:
                             RemoveEmployee(InputHelper.PromptAndGetPositiveInt("Employee Id: "));
                             break;
                     }
                 }
                 catch (Exception ex) 
                 {
-                    Status = ex.Message;
+                    BufferError(ex.Message);
                     goto startover;
                 }
 
             } while (Command != InitialCommand.Quit);
         }
-
-        private void UpdateEmployee(int id)
+        private void TryUpdateEmployee(int id)
         {
             var oldEmployee = Company.GetEmployeeById(id);
-         
+            UpdateEmployee(oldEmployee);
+        }
+        private void UpdateEmployee(Employee oldEmployee)
+        {
             EmployeeUpdateCommand command = DisplayAndGetUpdateEmployeeCmd();
             switch(command){
                 case EmployeeUpdateCommand.Edit_Name:
@@ -116,8 +120,6 @@ public EmployeeUpdateCommand[] UpdateCommands { get; init; } =
                     oldEmployee.Position = InputHelper.PromptAndGetNonEmptyString("Position: ");
                     break;
             }
-
-
         }
 
         private void RemoveEmployee(int v)
@@ -125,22 +127,27 @@ public EmployeeUpdateCommand[] UpdateCommands { get; init; } =
             Company.RemoveEmployee(v);
         }
 
-        private void CreateAndAddEmployee(Employee employee)
+        private void AddEmployee(Employee employee)
         {
             Company.Employees.Add(employee);
         }
 
-        private void PrintAllEmployees()
+        private void BufferAllEmployees()
         {
             foreach (var employee in Company.Employees)
             {
-                Status += $"{employee} \n";
+                Buffer += $">> {employee}\n";
             }
         }
+        private void BufferError(string msg)
+        {
+            Buffer += $"(!) {msg}";
+        }
+
         private void PrintEmployeeById(int id)
         {
             var employee = Company.GetEmployeeById(id);
-            Status += employee;
+            Buffer += employee;
         }
 
 
@@ -151,31 +158,41 @@ public EmployeeUpdateCommand[] UpdateCommands { get; init; } =
             {Company.Name} has {Company.Employees.Count()} employees
 ================================================================================");
         }
-        public void PrintStatus()
+        public void PrintBuffer()
         {
-            if(Status != string.Empty)
-                Console.WriteLine($"\n>> {Status}\n");
-            Status = string.Empty;
+            if(Buffer != string.Empty)
+            {
+                if(Buffer.StartsWith("(!)"))
+                    Console.ForegroundColor = ConsoleColor.Red;
+                else
+                    Console.ForegroundColor = ConsoleColor.Green;
+
+                Console.WriteLine($"\n{Buffer}\n");
+            }
+            Console.ForegroundColor = ConsoleColor.White;
+            Buffer = string.Empty;
         }
 
         public InitialCommand DisplayAndGetCommand()
         {
-            Console.Clear();
-
-            PrintCompanyInfo();
-            PrintStatus();
-            foreach(var command in InitialCommands)
-            {
-                Console.WriteLine($"{(int)command} > {command}");
-            }
-            
+            Display();
             int commandInt = InputHelper.PromptAndGetPositiveInt("Enter command: ");
                         if( commandInt > InitialCommands.Length - 1 )
                 throw ExceptionHelper.CommandInvalidException( commandInt );
 
             return (InitialCommand) commandInt;
         }
+        public void Display()
+        {
+            Console.Clear();
 
+            PrintCompanyInfo();
+            PrintBuffer();
+            foreach (var command in InitialCommands)
+            {
+                Console.WriteLine($"{(int)command} > {command}");
+            }
+        }
 
         public EmployeeUpdateCommand DisplayAndGetUpdateEmployeeCmd()
         {
@@ -185,7 +202,7 @@ public EmployeeUpdateCommand[] UpdateCommands { get; init; } =
             {
                 Console.Clear();
                 PrintCompanyInfo();
-                PrintStatus();
+                PrintBuffer();
                 foreach (var command in UpdateCommands)
             {
                 Console.WriteLine($"{(int)command} > {command}");
@@ -194,7 +211,7 @@ public EmployeeUpdateCommand[] UpdateCommands { get; init; } =
             commandInt = InputHelper.PromptAndGetPositiveInt("Enter command: ");
 
             if (commandInt > UpdateCommands.Length - 1)
-                    Status+="invalid command";
+                    BufferError("Invalid command");
 
             } while (commandInt>4);
 
