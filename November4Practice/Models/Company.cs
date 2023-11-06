@@ -13,8 +13,8 @@ namespace November4Practice.Models
         public Company(string name)
         {
             Name = name;
-            Employees = new(){new Employee("Vugar","Samadov",20,3444,"D",Gender.Male),
-            new Employee("Saddam","Hussein",23,3444,"D",Gender.Male) };
+            Employees = new(){new Employee("Vugar","Samadov",20,3444,Position.Staff,Gender.Male),
+            new Employee("Saddam","Hussein",23,3444,Position.Executive,Gender.Male) };
         }
 
         public List<Employee> Employees { get; private set; }

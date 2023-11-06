@@ -88,29 +88,41 @@ namespace November4Practice.Helpers
         }
 
 
-        public static Employee GetEmployeeFromUser()
+        public static Employee GetEmployeeFromUser(Action printBuffer)
         {
             var Name = PromptAndGetNonEmptyString("Name: ");
             var Surname = PromptAndGetNonEmptyString("Surname: ");
             var Age = PromptAndGetPositiveInt("Age: ");
             var Salary = PromptAndGetPositiveDecimal("Salary: ");
-            var Position = PromptAndGetNonEmptyString("Position: ");
-            var Gender = GetGenderFromUser();
+            var Position = GetPositionFromUser(printBuffer);
+            var Gender = GetGenderFromUser(printBuffer);
 
             return new Employee(Name, Surname, Age, Salary, Position, Gender);
         }
 
 
         public static Gender[] Genders = new Gender[] { Gender.Male, Gender.Female, Gender.Other };
-        public static Gender GetGenderFromUser()
+        public static Position[] Positions = new Position[] { Position.Staff, Position.Manager, Position.Executive};
+        //public static Gender GetGenderFromUser()
+        //{
+        //    Console.WriteLine();
+        //    foreach (var gender in Genders)
+        //    {
+        //        Console.WriteLine($"{(int)gender} > {gender}");
+        //    }
+            
+        //    int genderInt = PromptAndGetPositiveInt("Gender: ");
+
+        //    if (genderInt > Genders.Length - 1)
+        //        throw ExceptionHelper.CommandInvalidException(genderInt);
+
+        //    return (Gender)genderInt;
+        //}
+        public static Gender GetGenderFromUser(Action printBuffer)
         {
             Console.WriteLine();
-            foreach (var gender in Genders)
-            {
-                Console.WriteLine($"{(int)gender} > {gender}");
-            }
-            
-            int genderInt = PromptAndGetPositiveInt("Gender: ");
+
+            int genderInt = DisplayAndGetCommandBySelection(Genders,printBuffer,"Choose gender: ");
 
             if (genderInt > Genders.Length - 1)
                 throw ExceptionHelper.CommandInvalidException(genderInt);
@@ -118,14 +130,31 @@ namespace November4Practice.Helpers
             return (Gender)genderInt;
         }
 
+        public static Position GetPositionFromUser(Action printBuffer)
+        {
+            Console.WriteLine();
 
-        public static T DisplayAndGetCommandBySelection<T>(T[] commands) where T: Enum 
+            int positionInt = DisplayAndGetCommandBySelection(Positions, printBuffer,"Choose position: ");
+
+            if (positionInt > Positions.Length - 1)
+                throw ExceptionHelper.CommandInvalidException(positionInt);
+
+            return (Position)positionInt;
+        }
+
+
+
+        public static int DisplayAndGetCommandBySelection<T>(T[] commands, Action printBuffer, string header = "") where T: Enum 
         {
             int currentIndx = 0;
             do
             {
                 Console.Clear();
-                for(int i = 0; i< commands.Length; i++)
+                printBuffer.Invoke();
+                Console.WriteLine(header+": ");
+
+
+                for (int i = 0; i< commands.Length; i++)
                 {
                     if(i == currentIndx)
                     {
@@ -151,7 +180,7 @@ namespace November4Practice.Helpers
                 }
 
                 if (keyPress == ConsoleKey.Enter)
-                    return (T)(object)currentIndx;
+                    return currentIndx;
 
             } while (true);    
         }

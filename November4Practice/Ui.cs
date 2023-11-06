@@ -55,6 +55,7 @@ namespace November4Practice
             InitialCommand Command = InitialCommand.Quit;
             do
             {
+                    herer:
                 try
                 {
                     Command = DisplayAndGetCommand(InitialCommands);
@@ -62,7 +63,7 @@ namespace November4Practice
                     switch(Command)
                     {
                         case InitialCommand.Create_Employee:
-                            AddEmployee(InputHelper.GetEmployeeFromUser());
+                            AddEmployee(InputHelper.GetEmployeeFromUser(PrintBuffer));
                             break;
                         case InitialCommand.Get_Employee_By_Id:
                             PrintEmployeeById(InputHelper.PromptAndGetPositiveInt("Employee Indx: "));
@@ -82,7 +83,7 @@ namespace November4Practice
                 catch (Exception ex) 
                 {
                     BufferError(ex.Message);
-                    PromptInitialCommandsAndStart();
+                    goto herer;
                 }
 
             } while (Command != InitialCommand.Quit);
@@ -91,6 +92,7 @@ namespace November4Practice
         private void UpdateEmployee(int id)
         {
             var oldEmployee = Company.GetEmployeeById(id);
+            startover:
             try
             {
                 EmployeeUpdateCommand command = DisplayAndGetCommand(UpdateCommands);
@@ -99,19 +101,19 @@ namespace November4Practice
                         oldEmployee.Name = InputHelper.PromptAndGetNonEmptyString("Name: ");
                         break;
                     case EmployeeUpdateCommand.Edit_Gender:
-                        oldEmployee.Gender = InputHelper.GetGenderFromUser();
+                        oldEmployee.Gender = InputHelper.GetGenderFromUser(PrintBuffer);
                         break;
                     case EmployeeUpdateCommand.Edit_Salary:
                         oldEmployee.Salary = InputHelper.PromptAndGetPositiveDecimal("Salary: ");
                         break;
                     case EmployeeUpdateCommand.Edit_Position:
-                        oldEmployee.Position = InputHelper.PromptAndGetNonEmptyString("Position: ");
+                        oldEmployee.Position = InputHelper.GetPositionFromUser(PrintBuffer);
                         break;
                 }
             }catch(Exception e)
             {
                 BufferError(e.Message);
-                UpdateEmployee(id);
+                goto startover;
             }
         }
 
@@ -161,8 +163,7 @@ namespace November4Practice
 
         public T DisplayAndGetCommand<T>(T[] commands ) where T : Enum
         {
-            Display(commands);
-            int commandInt = InputHelper.PromptAndGetPositiveInt("Enter command: ");
+            int commandInt = InputHelper.DisplayAndGetCommandBySelection(commands,PrintBuffer,"Choose command (use up/down arrow keys)");
 
             if (commandInt > commands.Length - 1)
                 throw ExceptionHelper.CommandInvalidException(commandInt);
