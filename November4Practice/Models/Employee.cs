@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace November4Practice.Models
+﻿namespace November4Practice.Models
 {
     internal class Employee : Person
     {
@@ -26,7 +17,7 @@ namespace November4Practice.Models
 
         public override string ToString()
         {
-            return $"{Id} {Name} {Surname} {Gender} {Salary}";
+            return $"{Id} {Name} {Surname} {Gender} {Salary} {Position}";
         }
     }
 }

@@ -1,20 +1,12 @@
 ﻿using November4Practice.ExceptionRelated;
 using November4Practice.Helpers;
 using November4Practice.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace November4Practice
 {
     internal class Ui
     {
         public Company Company { get; private set; }
-
-        public string Buffer { get; private set; } = string.Empty;
 
         public InitialCommand[] InitialCommands { get; init; } = 
             new InitialCommand[] {
@@ -40,22 +32,15 @@ namespace November4Practice
             Company = new(" E Corp");
         }
 
-        public void PrintCompanyInfo()
-        {
-            Console.WriteLine(@$"
-================================================================================
-            {Company.Name} has {Company.Employees.Count()} employees
-================================================================================");
-        }
-
+        /// <summary>
+        /// Prompts the initial commands
+        /// </summary>
         public void PromptInitialCommandsAndStart()
         {
-
-            //s
             InitialCommand Command = InitialCommand.Quit;
             do
             {
-                    herer:
+                    here:
                 try
                 {
                     Command = DisplayAndGetCommand(InitialCommands);
@@ -63,7 +48,7 @@ namespace November4Practice
                     switch(Command)
                     {
                         case InitialCommand.Create_Employee:
-                            AddEmployee(InputHelper.GetEmployeeFromUser(PrintBuffer));
+                            AddEmployee(EmployeeInputHelpers.GetEmployeeFromUser(PrintBuffer));
                             break;
                         case InitialCommand.Get_Employee_By_Id:
                             PrintEmployeeById(InputHelper.PromptAndGetPositiveInt("Employee Indx: "));
@@ -83,12 +68,15 @@ namespace November4Practice
                 catch (Exception ex) 
                 {
                     BufferError(ex.Message);
-                    goto herer;
+                    goto here;
                 }
 
             } while (Command != InitialCommand.Quit);
         }
-
+        /// <summary>
+        /// Asks user to choose prop to be updated and updates the prop
+        /// </summary>
+        /// <param name="id">Id of the employee</param>
         private void UpdateEmployee(int id)
         {
             var oldEmployee = Company.GetEmployeeById(id);
@@ -101,13 +89,13 @@ namespace November4Practice
                         oldEmployee.Name = InputHelper.PromptAndGetNonEmptyString("Name: ");
                         break;
                     case EmployeeUpdateCommand.Edit_Gender:
-                        oldEmployee.Gender = InputHelper.GetGenderFromUser(PrintBuffer);
+                        oldEmployee.Gender = EmployeeInputHelpers.GetGenderFromUser(PrintBuffer);
                         break;
                     case EmployeeUpdateCommand.Edit_Salary:
                         oldEmployee.Salary = InputHelper.PromptAndGetPositiveDecimal("Salary: ");
                         break;
                     case EmployeeUpdateCommand.Edit_Position:
-                        oldEmployee.Position = InputHelper.GetPositionFromUser(PrintBuffer);
+                        oldEmployee.Position = EmployeeInputHelpers.GetPositionFromUser(PrintBuffer);
                         break;
                 }
             }catch(Exception e)
@@ -118,23 +106,41 @@ namespace November4Practice
         }
 
         private void RemoveEmployee(int v) => Company.RemoveEmployee(v);
-
         private void AddEmployee(Employee employee) => Company.Employees.Add(employee);
 
+        /// <summary>
+        /// Contains all transient messages (errors,warnings)
+        /// </summary>
+        public string Buffer { get; private set; } = string.Empty;
+        
+        /// <summary>
+        /// Adds all employees to the buffer
+        /// </summary>
         private void BufferAllEmployees()
         {
             Buffer = string.Empty;
             Company.Employees.ForEach(e => Buffer += $">> {e}\n");
         }
 
+        /// <summary>
+        /// Assigns error message to the buffer. Adds error prefix (!) to later handle console color
+        /// </summary>
+        /// <param name="msg">Error messages</param>
         private void BufferError(string msg)
         {
             Buffer = string.Empty;
             Buffer = $"(!) {msg}";
         }
 
-            private void PrintEmployeeById(int id) => Buffer = Company.GetEmployeeById(id).ToString();
+        /// <summary>
+        /// Adds Employee to the Buffer. Throws exception if not found
+        /// </summary>
+        /// <param name="id">Id of the employee</param>
+        private void PrintEmployeeById(int id) => Buffer = Company.GetEmployeeById(id).ToString();
         
+        /// <summary>
+        /// Prints buffer to the console. Handles coloring (warning, error)
+        /// </summary>
         public void PrintBuffer()
         {
             if(Buffer != string.Empty)
@@ -150,17 +156,12 @@ namespace November4Practice
             Buffer = string.Empty;
         }
 
-        public void Display<T>(T[] commands) where T: Enum
-        {
-            Console.Clear();
-            PrintCompanyInfo();
-            PrintBuffer();
-            foreach (T command in commands)
-            {
-                Console.WriteLine($"{Convert.ToInt32(command)} > {command}");
-            }
-        }
-
+        /// <summary>
+        /// Displays interactive UI and waits for input from user
+        /// </summary>
+        /// <typeparam name="T">Enum type that represents command</typeparam>
+        /// <param name="commands">Array of command enum types</param>
+        /// <returns>Command Enum</returns>
         public T DisplayAndGetCommand<T>(T[] commands ) where T : Enum
         {
             int commandInt = InputHelper.DisplayAndGetCommandBySelection(commands,PrintBuffer,"Choose command (use up/down arrow keys)");
