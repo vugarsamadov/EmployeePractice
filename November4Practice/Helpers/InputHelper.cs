@@ -118,5 +118,43 @@ namespace November4Practice.Helpers
             return (Gender)genderInt;
         }
 
+
+        public static T DisplayAndGetCommandBySelection<T>(T[] commands) where T: Enum 
+        {
+            int currentIndx = 0;
+            do
+            {
+                Console.Clear();
+                for(int i = 0; i< commands.Length; i++)
+                {
+                    if(i == currentIndx)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write("> ");
+                        Console.ResetColor();
+                    }
+                    else
+                        Console.Write("  ");
+                    
+                    Console.WriteLine(commands[i]);
+                }
+                var keyPress = Console.ReadKey().Key;
+
+                if(keyPress == ConsoleKey.UpArrow)
+                {
+                    currentIndx = currentIndx - 1 < 0? 0: currentIndx - 1;
+                }
+
+                if (keyPress == ConsoleKey.DownArrow)
+                {
+                    currentIndx = currentIndx + 1 > commands.Length-1 ? commands.Length-1 : currentIndx + 1;
+                }
+
+                if (keyPress == ConsoleKey.Enter)
+                    return (T)(object)currentIndx;
+
+            } while (true);    
+        }
+
     }
 }

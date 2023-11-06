@@ -2,4 +2,4 @@
 
 Ui ui = new Ui();
 
-ui.Start();
+ui.PromptInitialCommandsAndStart();

@@ -37,25 +37,11 @@ namespace November4Practice.Models
 
         public Employee GetEmployeeById(int id)
         {
-            foreach (Employee employee in Employees)
-            {
-                if (employee.Id == id)
-                    return employee;
-            }
+            var employee = Employees.SingleOrDefault(e => e.Id == id);
+            if (employee != null)
+                return employee;
             throw ExceptionHelper.EmployeeNotFoundException(id);
         }
-
-        //public void UpdateEmployee(Employee employee)
-        //{
-        //    var oldEmployee = GetEmployeeById(employee.Id);
-
-        //    oldEmployee.Name = employee.Name;
-        //    oldEmployee.Surname = employee.Surname;
-        //    oldEmployee.Age = employee.Age;
-        //    oldEmployee.Gender = employee.Gender;
-        //    oldEmployee.Salary = employee.Salary;
-
-        //}
 
         public List<Employee> GetAllEmployees() => Employees;
 
