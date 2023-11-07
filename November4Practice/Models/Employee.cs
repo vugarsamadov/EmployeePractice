@@ -15,6 +15,9 @@
         public Position Position { get; set; }
         public Gender Gender { get; set; }
 
+        public DateTime CreatedAt { get; init; } = DateTime.Now;
+        public int AccountAge{ get => (DateTime.Now - CreatedAt).Days; }
+
         public override string ToString()
         {
             return $"{Id} {Name} {Surname} {Gender} {Salary} {Position}";

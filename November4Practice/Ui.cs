@@ -1,6 +1,7 @@
 ﻿using November4Practice.ExceptionRelated;
 using November4Practice.Helpers;
 using November4Practice.Models;
+using November4Practice.Services;
 
 namespace November4Practice
 {
@@ -78,24 +79,27 @@ namespace November4Practice
         /// </summary>
         /// <param name="id">Id of the employee</param>
         private void UpdateEmployee(int id)
-        {
-            var oldEmployee = Company.GetEmployeeById(id);
+        { 
             startover:
             try
             {
                 EmployeeUpdateCommand command = DisplayAndGetCommand(UpdateCommands);
                 switch(command){
                     case EmployeeUpdateCommand.Edit_Name:
-                        oldEmployee.Name = InputHelper.PromptAndGetNonEmptyString("Name: ");
+                        var name = InputHelper.PromptAndGetNonEmptyString("Name: ");
+                        EmployeeService.UpdateEmployeeName(id,name);
                         break;
                     case EmployeeUpdateCommand.Edit_Gender:
-                        oldEmployee.Gender = EmployeeInputHelpers.GetGenderFromUser(PrintBuffer);
+                        var gender = EmployeeInputHelpers.GetGenderFromUser(PrintBuffer);
+                        EmployeeService.UpdateEmployeeGender(id,gender);
                         break;
                     case EmployeeUpdateCommand.Edit_Salary:
-                        oldEmployee.Salary = InputHelper.PromptAndGetPositiveDecimal("Salary: ");
+                        var salary = InputHelper.PromptAndGetPositiveDecimal("Salary: ");
+                        EmployeeService.UpdateEmployeeSalary(id,salary);
                         break;
                     case EmployeeUpdateCommand.Edit_Position:
-                        oldEmployee.Position = EmployeeInputHelpers.GetPositionFromUser(PrintBuffer);
+                        var position = EmployeeInputHelpers.GetPositionFromUser(PrintBuffer);
+                        EmployeeService.UpdateEmployeePosition(id,position);
                         break;
                 }
             }catch(Exception e)
@@ -105,8 +109,8 @@ namespace November4Practice
             }
         }
 
-        private void RemoveEmployee(int v) => Company.RemoveEmployee(v);
-        private void AddEmployee(Employee employee) => Company.Employees.Add(employee);
+        private void RemoveEmployee(int Id) => EmployeeService.RemoveEmployee(Id);
+        private void AddEmployee(Employee employee) => EmployeeService.AddEmployee(employee);
 
         /// <summary>
         /// Contains all transient messages (errors,warnings)
@@ -119,7 +123,7 @@ namespace November4Practice
         private void BufferAllEmployees()
         {
             Buffer = string.Empty;
-            Company.Employees.ForEach(e => Buffer += $">> {e}\n");
+            EmployeeService.GetAllEmployees().ForEach(e => Buffer += $">> {e}\n");
         }
 
         /// <summary>
@@ -136,7 +140,7 @@ namespace November4Practice
         /// Adds Employee to the Buffer. Throws exception if not found
         /// </summary>
         /// <param name="id">Id of the employee</param>
-        private void PrintEmployeeById(int id) => Buffer = Company.GetEmployeeById(id).ToString();
+        private void PrintEmployeeById(int id) => Buffer = EmployeeService.GetEmployeeById(id).ToString();
         
         /// <summary>
         /// Prints buffer to the console. Handles coloring (warning, error)

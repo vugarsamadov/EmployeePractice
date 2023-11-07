@@ -1,10 +1,6 @@
 ﻿using November4Practice.ExceptionRelated;
 using November4Practice.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using November4Practice.Validator;
 
 namespace November4Practice.Helpers
 {
@@ -21,7 +17,11 @@ namespace November4Practice.Helpers
         public static Employee GetEmployeeFromUser(Action printBuffer)
         {
             var Name = InputHelper.PromptAndGetNonEmptyString("Name: ");
+            Validators.ValidateName(Name);
+
             var Surname = InputHelper.PromptAndGetNonEmptyString("Surname: ");
+            Validators.ValidateSurname(Surname);
+
             var Age = InputHelper.PromptAndGetPositiveInt("Age: ");
             var Salary = InputHelper.PromptAndGetPositiveDecimal("Salary: ");
             var Position = GetPositionFromUser(printBuffer);

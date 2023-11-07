@@ -14,5 +14,12 @@ namespace November4Practice.ExceptionRelated
         public static CommandInvalidException CommandInvalidException(int? command = null)
             => new CommandInvalidException($"Input command ({command}) is invalid!");
 
+        public static InvalidNameException InvalidNameException(string? name = null)
+            => new InvalidNameException($"Name ({name}) is invalid!");
+
+        public static InvalidSurnameException InvalidSurnameException(string? surname = null)
+            => new InvalidSurnameException($"Surname ({surname}) is invalid!");
+
+
     }
 }
